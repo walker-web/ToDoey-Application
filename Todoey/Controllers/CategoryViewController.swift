@@ -1,10 +1,6 @@
 //
 //  CategoryViewController.swift
 //  Todoey
-//
-//  Created by Angela Yu on 01/12/2017.
-//  Copyright © 2017 Angela Yu. All rights reserved.
-//
 
 import UIKit
 import CoreData
@@ -19,6 +15,18 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
         
         loadCategories()
+
+    }
+    
+    // MARK:- UITableView Editing Methods
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            context.delete(categories[indexPath.row])
+            categories.remove(at: indexPath.row)
+        }
+
+        saveCategories()
 
     }
     

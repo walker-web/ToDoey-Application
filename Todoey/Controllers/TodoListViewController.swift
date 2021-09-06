@@ -1,10 +1,6 @@
 //
 //  ViewController.swift
 //  Todoey
-//
-//  Created by Angela Yu on 16/11/2017.
-//  Copyright © 2017 Angela Yu. All rights reserved.
-//
 
 import UIKit
 import CoreData
@@ -19,15 +15,41 @@ class TodoListViewController: UITableViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        if (selectedCategory?.items) != nil {
+            title = selectedCategory!.name
+            guard (navigationController?.navigationBar) != nil else { fatalError("Navigation controller does not exist.")
+            }
+        }
+        guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist.")
+        }
+        navBar.backgroundColor = UIColor.white
+    }
+    
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-
+        
         
     }
+    
+    // MARK:- UITableView Editing Methods
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            context.delete(itemArray[indexPath.row])
+            itemArray.remove(at: indexPath.row)
+        }
+        
+        saveItems()
+        
+    }
+    
     
     //MARK: - Tableview Datasource Methods
     
@@ -55,12 +77,12 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
+        
+        //        context.delete(itemArray[indexPath.row])
+        //        itemArray.remove(at: indexPath.row)
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-
+        
         saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -106,9 +128,9 @@ class TodoListViewController: UITableViewController {
     func saveItems() {
         
         do {
-          try context.save()
+            try context.save()
         } catch {
-           print("Error saving context \(error)")
+            print("Error saving context \(error)")
         }
         
         self.tableView.reloadData()
@@ -123,7 +145,7 @@ class TodoListViewController: UITableViewController {
         } else {
             request.predicate = categoryPredicate
         }
-
+        
         
         do {
             itemArray = try context.fetch(request)
@@ -142,9 +164,9 @@ class TodoListViewController: UITableViewController {
 extension TodoListViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-
+        
         let request : NSFetchRequest<Item> = Item.fetchRequest()
-    
+        
         let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
@@ -160,7 +182,7 @@ extension TodoListViewController: UISearchBarDelegate {
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
             }
-          
+            
         }
     }
 }
